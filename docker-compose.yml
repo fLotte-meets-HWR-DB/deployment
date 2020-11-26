@@ -1,0 +1,58 @@
+version: '2.0'
+services:
+  db:
+    image: postgres:12.4-alpine
+    ports:
+      - "8001:5432"
+    volumes:
+      - database-volume:/var/lib/postgresql/data
+      - ./init-users.sh:/docker-entrypoint-initdb.d/init-users.sh
+    environment:
+      - POSTGRES_PASSWORD=password
+  user-management:
+    image: flotte-docker-registry.spdns.org/flotte-user-managment
+    ports:
+      - "5000:5000"
+      - "8080:8080"
+    links:
+      - "db:database"
+    environment:
+      - POSTGRES_CONNECTION_URL=postgres://fuser_management:passwordofuserserver@database/user_management
+      - RUST_LOG=trace
+      - HTTP_SERVER_ADDRESS=0.0.0.0:8080
+      - RPC_SERVER_ADDRESS=0.0.0.0:5000
+      - ENABLE_CORS=true
+  api-server:
+    image: flotte-docker-registry.spdns.org/apollo-server
+    ports:
+      - "4000:4000"
+    links:
+      - "db:database"
+      - "user-management:um"
+    environment:
+      - RPC_HOST=um:5000
+      - POSTGRES_CONNECTION_URL=postgres://fapi:passwordofapiserver@database/flotte_api
+      - NODE_ENV=nodevelop
+  frontend:
+      image: flotte-docker-registry.spdns.org/frontend-server
+      ports:
+        - "8081:8080"
+  proxy:
+    image: staticfloat/nginx-certbot
+    links:
+      - "frontend:frontend"
+      - "api-server:api-server"
+      - "api-server2:api-server2"
+      - "user-management:user-management"
+    restart: always
+    environment:
+      CERTBOT_EMAIL: "youremail@example.de"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./conf.d:/etc/nginx/user.conf.d:ro
+      - letsencrypt:/etc/letsencrypt
+volumes:
+  database-volume: {}
+  letsencrypt:
