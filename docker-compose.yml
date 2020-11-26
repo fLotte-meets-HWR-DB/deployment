@@ -42,7 +42,6 @@ services:
     links:
       - "frontend:frontend"
       - "api-server:api-server"
-      - "api-server2:api-server2"
       - "user-management:user-management"
     restart: always
     environment:
