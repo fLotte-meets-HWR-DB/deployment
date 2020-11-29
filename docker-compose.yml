@@ -38,7 +38,7 @@ services:
       ports:
         - "8081:8080"
   proxy:
-    image: staticfloat/nginx-certbot
+    image: staticfloat/nginx-certbot:v1.1
     links:
       - "frontend:frontend"
       - "api-server:api-server"
