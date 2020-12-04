@@ -16,8 +16,10 @@ services:
       - "8080:8080"
     links:
       - "db:database"
+    mem_limit: 2000000000
+    restart: unless-stopped
     environment:
-      - POSTGRES_CONNECTION_URL=postgres://fuser_management:passwordofuserserver@database/user_management
+      - DATABASE_URL=postgres://fuser_management:passwordofuserserver@database/user_management
       - RUST_LOG=trace
       - HTTP_SERVER_ADDRESS=0.0.0.0:8080
       - RPC_SERVER_ADDRESS=0.0.0.0:5000
@@ -29,6 +31,8 @@ services:
     links:
       - "db:database"
       - "user-management:um"
+    mem_limit: 1000000000
+    restart: unless-stopped
     environment:
       - RPC_HOST=um:5000
       - POSTGRES_CONNECTION_URL=postgres://fapi:passwordofapiserver@database/flotte_api
@@ -37,13 +41,16 @@ services:
       image: flotte-docker-registry.spdns.org/frontend-server
       ports:
         - "8081:8080"
+    mem_limit: 100000000
+    restart: unless-stopped
   proxy:
     image: staticfloat/nginx-certbot:v1.1
     links:
       - "frontend:frontend"
       - "api-server:api-server"
       - "user-management:user-management"
-    restart: always
+    mem_limit: 1000000000
+    restart: unless-stopped
     environment:
       CERTBOT_EMAIL: "youremail@example.de"
     ports:
