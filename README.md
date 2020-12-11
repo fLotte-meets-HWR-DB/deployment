@@ -9,6 +9,9 @@ Set your email address in the docker compose and replace _DOMAIN_NAME_ with you 
 ### Postgres
 The postgres db is initiated with the init-user.sh to create users for the user server and the api server. Change the passwords and/or user names. Do that also in the docker compose.
 
+### Front End
+The front end is written in angular and thus is a single page application. The paths to the back ends [API](https://github.com/fLotte-meets-HWR-DB/apollo-server) and [user server](https://github.com/fLotte-meets-HWR-DB/flotte-user-management) are backed into it. They need to be specified before you compile the type script. Meaning every time you change the paths to the back end, you need to rebuild the front end container with the new urls.
+
 ### Start the services
 ```bash
 docker-compose up -d
